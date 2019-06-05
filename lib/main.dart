@@ -4,6 +4,7 @@ import 'bottom_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:ss_player/songs.dart';
 import 'package:ss_player/theme.dart';
+import 'package:fluttery/gestures.dart';
 
 void main() => runApp(new MyApp());
 
@@ -24,6 +25,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -52,28 +55,7 @@ class _HomePageState extends State<HomePage> {
         children: <Widget>[
           //seekbar
           new Expanded(
-            child: new Center(
-              child: new Container(
-                width: 140.0,
-                height: 140.0,
-                child: new RadialSeekBar(
-                  progressPercent: 0.2,
-                  thumbPosition: 0.2,
-                  innerPadding: EdgeInsets.all(10.0),
-                  progressColor: accentColor,
-                  thumbColor: lightAccentColor,
-                  trackColor: Colors.grey[300],
-                  child: new ClipOval(
-                    clipper: new CircleClipper(),
-                    child: Image.network(
-                      demoPlaylist.songs[0].albumArtUrl,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-
-            ),
+            child: new RadialSeekBar(),
           ),
 
 
@@ -93,6 +75,81 @@ class _HomePageState extends State<HomePage> {
 
 class RadialSeekBar extends StatefulWidget {
 
+  @override
+  _RadialSeekBarState createState() => _RadialSeekBarState();
+}
+
+class _RadialSeekBarState extends State<RadialSeekBar> {
+
+  PolarCoord _startDragCoord;
+  double _startDragPercent;
+  double _seekPercent=0.0;
+  double _currentDragPercent;
+
+  void _onDragStart(PolarCoord coord){
+    _startDragCoord=coord;
+    _startDragPercent=_seekPercent;
+
+  }
+  void _onDragUpdate(PolarCoord coord){
+    final dragAngle=coord.angle-_startDragCoord.angle;
+    final dragPercent=dragAngle/(2*pi);
+    setState(() {
+      _currentDragPercent=(_startDragPercent+dragPercent)%1.0;
+    });
+
+  }
+  void _onDragEnd(){
+
+    setState(() {
+      _seekPercent=_currentDragPercent;
+      _currentDragPercent=null;
+      _startDragPercent=0.0;
+      _startDragCoord=null;
+    });
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return new RadialDragGestureDetector(
+      onRadialDragStart:_onDragStart,
+      onRadialDragUpdate: _onDragUpdate,
+      onRadialDragEnd: _onDragEnd,
+      child: new Container(
+        width:double.infinity,
+        height: double.infinity,
+        color: Colors.transparent,
+        child: new Center(
+          child: new Container(
+            width: 140.0,
+            height: 140.0,
+            child: new RadialProgressBar(
+              progressPercent: _currentDragPercent ??_seekPercent,
+              thumbPosition: _currentDragPercent ??_seekPercent,
+              innerPadding: EdgeInsets.all(10.0),
+              progressColor: accentColor,
+              thumbColor: lightAccentColor,
+              trackColor: Colors.grey[300],
+              child: new ClipOval(
+                clipper: new CircleClipper(),
+                child: Image.network(
+                  demoPlaylist.songs[0].albumArtUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+
+        ),
+      ),
+    );
+  }
+}
+
+class RadialProgressBar extends StatefulWidget {
+
   final double trackWidth;
   final Color trackColor;
   final double progressWidth;
@@ -105,7 +162,7 @@ class RadialSeekBar extends StatefulWidget {
   final EdgeInsets outerPadding;
   final EdgeInsets innerPadding;
 
-  RadialSeekBar({
+  RadialProgressBar({
     this.trackWidth=3.0,
     this.trackColor=Colors.grey,
     this.progressWidth=5.0,
@@ -120,10 +177,10 @@ class RadialSeekBar extends StatefulWidget {
   });
 
   @override
-  _RadialSeekBarState createState() => _RadialSeekBarState();
+  _RadialProgressBarState createState() => _RadialProgressBarState();
 }
 
-class _RadialSeekBarState extends State<RadialSeekBar> {
+class _RadialProgressBarState extends State<RadialProgressBar> {
 
   EdgeInsets _insetsForPainter(){
     final outerThickness=max(widget.trackWidth,max(widget.progressWidth,widget.thumbSize))/2.0;
