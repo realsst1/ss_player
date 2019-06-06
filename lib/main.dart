@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ss_player/songs.dart';
 import 'package:ss_player/theme.dart';
 import 'package:fluttery/gestures.dart';
+import 'package:fluttery_audio/fluttery_audio.dart';
 
 void main() => runApp(new MyApp());
 
@@ -29,51 +30,61 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        backgroundColor: Colors.transparent,
-        title: new Text(""),
-        elevation: 0.0,
-        leading: new IconButton(
-          icon: new Icon(
-            Icons.arrow_back_ios
-          ),
-          color: const Color(0xFFDDDDDD),
-          onPressed: ()=>{},
-        ),
-        actions: <Widget>[
-          new IconButton(
+    return new Audio(
+      audioUrl: demoPlaylist.songs[0].audioUrl,
+      playbackState: PlaybackState.playing,
+      child: new Scaffold(
+        appBar: new AppBar(
+          backgroundColor: Colors.transparent,
+          title: new Text(""),
+          elevation: 0.0,
+          leading: new IconButton(
             icon: new Icon(
-                Icons.menu
+              Icons.arrow_back_ios
             ),
             color: const Color(0xFFDDDDDD),
             onPressed: ()=>{},
           ),
-        ],
-      ),
-      body: new Column(
-        children: <Widget>[
-          //seekbar
-          new Expanded(
-            child: new RadialSeekBar(),
-          ),
+          actions: <Widget>[
+            new IconButton(
+              icon: new Icon(
+                  Icons.menu
+              ),
+              color: const Color(0xFFDDDDDD),
+              onPressed: ()=>{},
+            ),
+          ],
+        ),
+        body: new Column(
+          children: <Widget>[
+            //seekbar
+            new Expanded(
+              child: new RadialSeekBar(),
+            ),
 
 
-          //visualizer
-          new Container(
-            width: double.infinity,
-            height: 125.0,
-          ),
+            //visualizer
+            new Container(
+              width: double.infinity,
+              height: 125.0,
+            ),
 
-          //song details
-          new BottomControls()
-        ],
+            //song details
+            new BottomControls()
+          ],
+        ),
       ),
     );
   }
 }
 
 class RadialSeekBar extends StatefulWidget {
+
+  final double seekPercent;
+
+  RadialSeekBar({
+    this.seekPercent=0.0
+  });
 
   @override
   _RadialSeekBarState createState() => _RadialSeekBarState();
@@ -85,6 +96,18 @@ class _RadialSeekBarState extends State<RadialSeekBar> {
   double _startDragPercent;
   double _seekPercent=0.0;
   double _currentDragPercent;
+
+  @override
+  void initState() {
+    super.initState();
+    _seekPercent=widget.seekPercent;
+  }
+
+  @override
+  void didUpdateWidget(RadialSeekBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _seekPercent=widget.seekPercent;
+  }
 
   void _onDragStart(PolarCoord coord){
     _startDragCoord=coord;
