@@ -63,7 +63,15 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             //seekbar
             new Expanded(
-              child: new AudioRadialSeekBar(),
+              child: new AudioPlaylistComponent(
+                  playlistBuilder: (BuildContext context,Playlist playlist,Widget child){
+                    String albumArtUrl=demoPlaylist.songs[playlist.activeIndex].albumArtUrl;
+
+                    return new AudioRadialSeekBar(
+                        albumArtUrl:albumArtUrl
+                    );
+                  },
+              ),
             ),
 
 
@@ -83,6 +91,12 @@ class _HomePageState extends State<HomePage> {
 }
 
 class AudioRadialSeekBar extends StatefulWidget {
+
+  final String albumArtUrl;
+
+  AudioRadialSeekBar({
+      this.albumArtUrl
+  });
 
   @override
   _AudioRadialSeekBarState createState() => _AudioRadialSeekBarState();
@@ -117,6 +131,13 @@ class _AudioRadialSeekBarState extends State<AudioRadialSeekBar> {
                           player.seek(new Duration(milliseconds: seekMillis));
                         });
                       },
+                      child:new Container(
+                        color: accentColor,
+                        child: new Image.network(
+                            widget.albumArtUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      )
                     );
                   },
               );
@@ -128,11 +149,13 @@ class RadialSeekBar extends StatefulWidget {
   final double seekPercent;
   final double progress;
   final Function(double) onSeekRequested;
+  final Widget child;
 
   RadialSeekBar({
     this.seekPercent=0.0,
     this.progress=0.0,
-    this.onSeekRequested
+    this.onSeekRequested,
+    this.child
   });
 
   @override
@@ -217,10 +240,8 @@ class _RadialSeekBarState extends State<RadialSeekBar> {
               trackColor: Colors.grey[300],
               child: new ClipOval(
                 clipper: new CircleClipper(),
-                child: Image.network(
-                  demoPlaylist.songs[0].albumArtUrl,
-                  fit: BoxFit.cover,
-                ),
+                child: widget.child,
+
               ),
             ),
           ),
