@@ -130,18 +130,23 @@ class PreviousButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new IconButton(
-      splashColor: lightAccentColor,
-      highlightColor: Colors.transparent,
-      icon: new Icon(
-        Icons.skip_previous,
-        color: Colors.white,
-        size: 35.0,
-      ),
-      onPressed: ()=>{},
+    return new AudioPlaylistComponent(
+      playlistBuilder: (BuildContext context, Playlist playlist, Widget child) {
+        return new IconButton(
+            splashColor: lightAccentColor,
+            highlightColor: Colors.transparent,
+            icon: new Icon(
+              Icons.skip_previous,
+              color: Colors.white,
+              size: 35.0,
+            ),
+            onPressed: playlist.previous
+        );
+      },
     );
   }
 }
+
 
 class NextButton extends StatelessWidget {
   const NextButton({
@@ -150,15 +155,19 @@ class NextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new IconButton(
-      highlightColor: Colors.transparent,
-      splashColor: lightAccentColor,
-      icon: new Icon(
-        Icons.skip_next,
-        color: Colors.white,
-        size: 35.0,
-      ),
-      onPressed: ()=>{},
+    return new AudioPlaylistComponent(
+      playlistBuilder: (BuildContext context, Playlist playlist, Widget child) {
+        return new IconButton(
+            splashColor: lightAccentColor,
+            highlightColor: Colors.transparent,
+            icon: new Icon(
+              Icons.skip_next,
+              color: Colors.white,
+              size: 35.0,
+            ),
+            onPressed: playlist.next
+        );
+      },
     );
   }
 }
